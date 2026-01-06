@@ -1,7 +1,5 @@
 # FastAPI + Postgres + uv (Docker Dev Setup)
 
-This is a development environment for running FastAPI and PostgreSQL inside Docker containers using the [uv](https://docs.astral.sh/uv/) package manager. 
-
 ## Prerequisites
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine.
 
@@ -20,4 +18,3 @@ docker compose exec web uv run alembic upgrade head
 
 - Swagger Docs at http://localhost:8000/docs
 
-I documented it in detail here: [Docker Containers as My Development Environment](https://www.niyonshutiemmanuel.com/blog/docker-containers-as-my-development-environment-fastapi-postgresql-1)
