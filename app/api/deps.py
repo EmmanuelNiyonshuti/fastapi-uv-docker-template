@@ -1,20 +1,29 @@
-from typing import Annotated, Generator
+from collections.abc import AsyncGenerator
+from typing import Annotated
 
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jwt import ExpiredSignatureError, InvalidTokenError
-from sqlalchemy import Connection
+from sqlalchemy import Row
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 from app.core.config import settings
-from app.core.db import engine
+from app.core.db import async_engine
 from app.crud import find_user_by_id
-from app.models import User
 
-oath2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
+BearerToken = OAuth2PasswordBearer(tokenUrl="/api/token")
 
 
-def credentials_exception(detail):
+async def get_db() -> AsyncGenerator[AsyncConnection]:
+    async with async_engine.connect() as conn:
+        yield conn
+
+
+DbConnection = Annotated[AsyncConnection, Depends(get_db)]
+AccessToken = Annotated[str, Depends(BearerToken)]
+
+
+def _credentials_exception(detail: str) -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail=detail,
@@ -22,26 +31,22 @@ def credentials_exception(detail):
     )
 
 
-def get_db() -> Generator[Connection, None, None]:
-    with engine.connect() as conn:
-        yield conn
-
-
-dbConnDep = Annotated[Connection, Depends(get_db)]
-
-accessTokenDep = Annotated[str, Depends(oath2_scheme)]
-
-def get_current_user(db_conn: dbConnDep, token: accessTokenDep):
+async def get_current_user(db_conn: DbConnection, token: AccessToken) -> Row:
     try:
-        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.ALGORITHM])
-    except ExpiredSignatureError:
-        raise credentials_exception("expired token")
-    except InvalidTokenError as e:
-        raise credentials_exception("Invalid token error")
-    user = find_user_by_id(db_conn, int(payload["sub"]))
-    if not user:
-        raise credentials_exception("User does not exists")
+        payload = jwt.decode(token, key=settings.JWT_SECRET_KEY, algorithms=[settings.ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise _credentials_exception("Token has expired") from None
+    except jwt.InvalidTokenError:
+        raise _credentials_exception("Invalid token") from None
+
+    subject = payload.get("sub")
+    if subject is None:
+        raise _credentials_exception("Invalid token")
+
+    user = await find_user_by_id(db_conn, int(subject))
+    if user is None:
+        raise _credentials_exception("User not found")
     return user
 
 
-currentUser = Annotated[User, Depends(get_current_user)]
+CurrentUser = Annotated[Row, Depends(get_current_user)]

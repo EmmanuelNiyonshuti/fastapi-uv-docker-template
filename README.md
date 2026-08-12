@@ -1,20 +1,56 @@
-# FastAPI + Postgres + uv (Docker Dev Setup)
+# FastAPI + PostgreSQL + uv (Docker Template)
 
-## Prerequisites
-- [Docker](https://docs.docker.com/get-docker/) installed on your machine.
+This is a simple starter template for a FastAPI application with PostgreSQL database.
+Created as a demo project for this blog [docker containers: FastAPI + Postgresql](https://blog.niyonshutiemmanuel.com/blog/docker-containers-as-my-development-environment-fastapi-postgresql-1)
 
-1. **Clone the repo**
-2. **Setup environment:** Create a `.env` file based on `.env.template`
-3. **Run the app:**
+## Getting Started
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/)
+
+### Run the app
+
+1. Clone the repo and enter it.
+2. Create your environment file:
+
    ```bash
-   docker compose up
+   cp .env.template .env
    ```
 
-4. **Run migrations:**
+3. Start the stack:
+
+   ```bash
+   docker compose up --build
+   ```
+
+4. Apply database migrations:
+
+   ```bash
+   docker compose exec web uv run alembic upgrade head
+   ```
+
+- API: http://localhost:8000
+- Swagger docs: http://localhost:8000/docs
+
+## Testing
+Start the test database, then run the suite:
+
 ```bash
-docker compose exec web uv run alembic upgrade head
+docker compose up -d db-test
+uv sync --all-groups
+uv run pytest
 ```
-- API available at http://localhost:8000
 
-- Swagger Docs at http://localhost:8000/docs
+Override the connection defaults with environment variables (e.g.
+`POSTGRES_SERVER`, `POSTGRES_PORT`, `POSTGRES_DB`).
 
+Lint and format with ruff:
+
+```bash
+uv run ruff check .
+uv run ruff format .
+```
+
+## Licence
+MIT

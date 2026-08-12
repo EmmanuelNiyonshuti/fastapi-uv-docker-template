@@ -1,11 +1,12 @@
 [project]
 name = "web-backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Production-ready FastAPI + PostgreSQL boilerplate managed with uv."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.17.2",
+    "asyncpg>=0.31.0",
     "fastapi[standard]>=0.128.0",
     "psycopg[binary]>=3.3.2",
     "pwdlib[argon2]>=0.3.0",
@@ -13,3 +14,27 @@ dependencies = [
     "pyjwt>=2.10.1",
     "sqlalchemy>=2.0.45",
 ]
+
+[dependency-groups]
+dev = [
+    "anyio>=4.12.0",
+    "httpx>=0.28.1",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "ruff>=0.12.2",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["app"]
