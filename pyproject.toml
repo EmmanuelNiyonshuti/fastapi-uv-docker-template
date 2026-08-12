@@ -5,7 +5,7 @@ description = "Production-ready FastAPI + PostgreSQL boilerplate managed with uv
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "alembic>=1.17.2",
+    "alembic>=1.19.1",
     "asyncpg>=0.31.0",
     "fastapi[standard]>=0.128.0",
     "psycopg[binary]>=3.3.2",
