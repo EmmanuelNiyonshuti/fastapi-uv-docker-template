@@ -1,5 +1,3 @@
-# FastAPI + PostgreSQL + uv (Docker Template)
-
 This is a simple starter template for a FastAPI application with PostgreSQL database.
 Created as a demo project for this blog [docker containers: FastAPI + Postgresql](https://blog.niyonshutiemmanuel.com/blog/docker-containers-as-my-development-environment-fastapi-postgresql-1)
 
