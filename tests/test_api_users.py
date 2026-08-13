@@ -5,6 +5,7 @@ from httpx import AsyncClient
 
 pytestmark = pytest.mark.anyio
 
+
 async def register_user(
     client: AsyncClient, email: str, username: str = "tester"
 ) -> dict[str, Any]:
